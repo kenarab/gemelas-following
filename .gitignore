@@ -1,0 +1,11 @@
+Meta
+doc
+.Rproj.user
+.Rhistory
+.RData*
+
+#log
+*.log
+
+#OSX
+**/.DS_Store
