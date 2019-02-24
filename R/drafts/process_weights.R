@@ -45,14 +45,15 @@ dcast(weights.data.norm,
 
 ggplot <- ggplot(data = weights.data.norm) +
   geom_line(aes(x = date, y = daily.rate, group = name, color = name))+
-  title("Sofia y Margarita- Daily rate")
+  ggtitle("Sofia y Margarita- Daily rate")
 ggplot
 ggsave(paste("~/gemelas_daily_rate.png"), ggplot)
 
 
 ggplot <- ggplot(data = weights.data.norm) +
   geom_line(aes(x = date, y = log.weight, group = name, color = name))+
-  title("Sofia y Margarita- Log weight")
+  ggtitle("Sofia y Margarita- Log weight")
+#g
 ggplot
 ggsave(paste("~/gemelas_log_weight.png"), ggplot)
 
@@ -61,7 +62,7 @@ ggsave(paste("~/gemelas_log_weight.png"), ggplot)
 
 
 ggplot <- ggplot(data = weights.data) +
-            title("Sofia y Margarita- weights") +
+          ggtitle("Sofia y Margarita- weights") +
             geom_line(aes(x = date, y = Sofia, color="Sofia")) + #, label = "Sofia"
             geom_line(aes(x = date, y = Margarita, color="Margarita")) #, label = "Margarita"
 ggplot
