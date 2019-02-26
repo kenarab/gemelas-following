@@ -1,8 +1,9 @@
-library(ggplot2)
 library(reshape2)
 library(dplyr)
+library(ggplot2)
+library(plotly)
 
-source.filename <- paste("~/gemelas_neonatologia_pesos.csv")
+source.filename <- file.path("inst","extdata", "gemelas_neonatologia_pesos.csv")
 weights.data <- read.csv(file = source.filename)
 #weights.data$Fecha <- as.Date(as.character(weights.data$Fecha), format ="%D%m%Y")
 weights.data$date <- as.Date(as.character(weights.data$date))
@@ -14,14 +15,29 @@ str(weights.data)
 
 weights.data$prev.date <- c(as.Date(NA), weights.data$date[-nrow(weights.data)])
 weights.data$prev.date
-weights.data$diff.date <- difftime(weights.data$date, weights.data$prev.date)
+weights.data$diff.date <- as.numeric(difftime(weights.data$date, weights.data$prev.date))
 
 #projection
 i <- nrow(weights.data)+1
 weights.data[i,"date"] <- as.Date("2019-02-26")
-weights.data[i,"diff.date"] <- weights.data[i,"date"]-weights.data[i-1,"date"]
+weights.data[i,"diff.date"] <- as.numeric(weights.data[i,"date"]-weights.data[i-1,"date"])
+weights.data[i,"obs"] <- "Predicted"
 
-weights.data.norm %>% filter(date=="2019-02-22")
+last.daily.rate.sofia <- as.numeric(weights.data.norm %>% filter(date=="2019-02-22", name == "Sofia") %>% select(daily.rate))
+last.daily.rate.margarita <- as.numeric(weights.data.norm %>% filter(date=="2019-02-22", name == "Margarita") %>% select(daily.rate))
+
+weights.data[i,"Sofia"] <- (1+last.daily.rate.sofia)^as.numeric(weights.data[i-1,"diff.date"]) * weights.data[i-1,"Sofia"]
+weights.data[i,"Margarita"] <- (1+last.daily.rate.margarita)^as.numeric(weights.data[i-1,"diff.date"]) * weights.data[i-1,"Margarita"]
+weights.data[i,]
+
+
+(1+last.daily.rate.sofia)^12 * weights.data[i-1,"Sofia"]
+(1+last.daily.rate.margarita)^12 * weights.data[i-1,"Margarita"]
+
+12*8*2
+
+Sys.Date()+12
+
 
 
 weights.data.norm <- weights.data[,c("date", "Sofia", "diff.date")]
@@ -29,6 +45,11 @@ names(weights.data.norm)[2] <- "weight"
 weights.data.norm$name <- "Sofia"
 weights.data.norm$prev.weight <- c(as.numeric(NA), weights.data.norm$weight[-nrow(weights.data)])
 weights.data.norm$rel.weight <- weights.data.norm$weight / weights.data.norm$prev.weight
+
+
+
+
+
 
 
 weights.data.norm.margarita <- weights.data[,c("date", "Margarita", "diff.date")]
@@ -57,6 +78,7 @@ ggplot <- ggplot(data = weights.data.norm) +
   geom_smooth(aes(x = date, y = daily.rate, group = name, color = name))+
   ggtitle("Sofia y Margarita- Daily rate")
 ggplot
+ggplotly(ggplot)
 ggsave(paste("~/gemelas_daily_rate.png"), ggplot)
 
 
