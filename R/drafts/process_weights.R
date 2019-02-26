@@ -17,27 +17,8 @@ weights.data$prev.date <- c(as.Date(NA), weights.data$date[-nrow(weights.data)])
 weights.data$prev.date
 weights.data$diff.date <- as.numeric(difftime(weights.data$date, weights.data$prev.date))
 
-#projection
-i <- nrow(weights.data)+1
-weights.data[i,"date"] <- as.Date("2019-02-26")
-weights.data[i,"diff.date"] <- as.numeric(weights.data[i,"date"]-weights.data[i-1,"date"])
-weights.data[i,"obs"] <- "Predicted"
 
-last.daily.rate.sofia <- as.numeric(weights.data.norm %>% filter(date=="2019-02-22", name == "Sofia") %>% select(daily.rate))
-last.daily.rate.margarita <- as.numeric(weights.data.norm %>% filter(date=="2019-02-22", name == "Margarita") %>% select(daily.rate))
-
-weights.data[i,"Sofia"] <- (1+last.daily.rate.sofia)^as.numeric(weights.data[i-1,"diff.date"]) * weights.data[i-1,"Sofia"]
-weights.data[i,"Margarita"] <- (1+last.daily.rate.margarita)^as.numeric(weights.data[i-1,"diff.date"]) * weights.data[i-1,"Margarita"]
-weights.data[i,]
-
-
-(1+last.daily.rate.sofia)^12 * weights.data[i-1,"Sofia"]
-(1+last.daily.rate.margarita)^12 * weights.data[i-1,"Margarita"]
-
-12*8*2
-
-Sys.Date()+12
-
+#normalized
 
 
 weights.data.norm <- weights.data[,c("date", "Sofia", "diff.date")]
@@ -101,3 +82,25 @@ ggsave(paste("~/gemelas_weight.png"), ggplot)
 
 
 
+
+
+#projection
+i <- nrow(weights.data)+1
+weights.data[i,"date"] <- as.Date("2019-02-26")
+weights.data[i,"diff.date"] <- as.numeric(weights.data[i,"date"]-weights.data[i-1,"date"])
+weights.data[i,"obs"] <- "Predicted"
+
+last.daily.rate.sofia <- as.numeric(weights.data.norm %>% filter(date=="2019-02-22", name == "Sofia") %>% select(daily.rate))
+last.daily.rate.margarita <- as.numeric(weights.data.norm %>% filter(date=="2019-02-22", name == "Margarita") %>% select(daily.rate))
+
+weights.data[i,"Sofia"] <- (1+last.daily.rate.sofia)^as.numeric(weights.data[i-1,"diff.date"]) * weights.data[i-1,"Sofia"]
+weights.data[i,"Margarita"] <- (1+last.daily.rate.margarita)^as.numeric(weights.data[i-1,"diff.date"]) * weights.data[i-1,"Margarita"]
+weights.data[i,]
+
+
+(1+last.daily.rate.sofia)^12 * weights.data[i-1,"Sofia"]
+(1+last.daily.rate.margarita)^12 * weights.data[i-1,"Margarita"]
+
+12*8*2
+
+Sys.Date()+12
