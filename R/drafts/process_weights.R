@@ -3,13 +3,17 @@ library(dplyr)
 library(ggplot2)
 library(plotly)
 
+source("R/twins-lib.R")
+
 source.filename <- file.path("inst","extdata", "gemelas_neonatologia_pesos.csv")
-weights.data <- read.csv(file = source.filename)
+weights.data <- read.csv(file = source.filename,
+                         stringsAsFactors = FALSE)
 #weights.data$Fecha <- as.Date(as.character(weights.data$Fecha), format ="%D%m%Y")
 weights.data$date <- as.Date(as.character(weights.data$date))
 weights.data$date
 weights.data$Sofia <- as.numeric(weights.data$Sofia)
 weights.data$Margarita <- as.numeric(weights.data$Margarita)
+weights.data[is.na(weights.data$Obs),"Obs"] <- ""
 str(weights.data)
 
 
@@ -85,18 +89,25 @@ ggsave(paste("~/gemelas_weight.png"), ggplot)
 
 
 #projection
-i <- nrow(weights.data)+1
-weights.data[i,"date"] <- as.Date("2019-02-26")
-weights.data[i,"diff.date"] <- as.numeric(weights.data[i,"date"]-weights.data[i-1,"date"])
-weights.data[i,"obs"] <- "Predicted"
+weights.data <- makePrediction(weights.data, 
+                               weights.data.norm,
+                               date = "2019-03-01",
+                               date.trend = "2019-02-22") 
 
-last.daily.rate.sofia <- as.numeric(weights.data.norm %>% filter(date=="2019-02-22", name == "Sofia") %>% select(daily.rate))
-last.daily.rate.margarita <- as.numeric(weights.data.norm %>% filter(date=="2019-02-22", name == "Margarita") %>% select(daily.rate))
+tail(makePrediction(weights.data, 
+                               weights.data.norm,
+                               date = "2019-03-01",
+                               date.trend = "2019-02-26"), 
+     n =2)
 
-weights.data[i,"Sofia"] <- (1+last.daily.rate.sofia)^as.numeric(weights.data[i-1,"diff.date"]) * weights.data[i-1,"Sofia"]
-weights.data[i,"Margarita"] <- (1+last.daily.rate.margarita)^as.numeric(weights.data[i-1,"diff.date"]) * weights.data[i-1,"Margarita"]
-weights.data[i,]
+tail(makePrediction(weights.data, 
+                     weights.data.norm,
+                     date = "2019-03-01",
+                     date.trend = "2019-02-22"), n =2)
 
+
+
+12*8*2
 
 (1+last.daily.rate.sofia)^12 * weights.data[i-1,"Sofia"]
 (1+last.daily.rate.margarita)^12 * weights.data[i-1,"Margarita"]
