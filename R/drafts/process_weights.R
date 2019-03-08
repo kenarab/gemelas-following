@@ -2,6 +2,7 @@ library(reshape2)
 library(dplyr)
 library(ggplot2)
 library(plotly)
+library("childsds")
 
 source("R/twins-lib.R")
 
@@ -14,6 +15,9 @@ weights.data$date
 weights.data$Sofia <- as.numeric(weights.data$Sofia)
 weights.data$Margarita <- as.numeric(weights.data$Margarita)
 weights.data[is.na(weights.data$Obs),"Obs"] <- ""
+
+weights.data <- weights.data[!is.na(weights.data$Sofia),]
+
 str(weights.data)
 
 
@@ -50,6 +54,8 @@ weights.data.norm$daily.rate <- round(weights.data.norm$rel.weight^
                                            4)
 weights.data.norm$log.weight <- log(weights.data.norm$weight, base =2)
 
+
+weights.data.norm$bi.month.rate <- (1+weights.data.norm$daily.rate) ^ 15 -1
 
 
 
@@ -91,19 +97,27 @@ ggsave(paste("~/gemelas_weight.png"), ggplot)
 #projection
 weights.data <- makePrediction(weights.data, 
                                weights.data.norm,
-                               date = "2019-03-01",
+                               date = "2019-03-03",
                                date.trend = "2019-02-22") 
 
 tail(makePrediction(weights.data, 
                                weights.data.norm,
-                               date = "2019-03-01",
-                               date.trend = "2019-02-26"), 
+                               date = "2019-03-10",
+                               date.trend = "2019-03-04"), 
      n =2)
 
 tail(makePrediction(weights.data, 
                      weights.data.norm,
-                     date = "2019-03-01",
+                     date = "2019-03-10",
                      date.trend = "2019-02-22"), n =2)
+
+
+tail(makePrediction(weights.data, 
+                    weights.data.norm,
+                    date = "2019-03-15",
+                    date.trend = "2019-03-04"), 
+     n =2)
+
 
 
 
@@ -115,3 +129,19 @@ tail(makePrediction(weights.data,
 12*8*2
 
 Sys.Date()+12
+
+# Different available tables
+#https://github.com/mvogel78/childsds/wiki/Weight
+
+tab <- make_percentile_tab(ref = cdc.ref,
+                           item = "weight",
+                           perc = c(25,50,75),
+                           age = seq(0,2,by=1/24),
+                           stack = T)
+
+
+ggplot <- mergeWithTablesPlot(weights.data.norm = weights.data.norm,
+                    max.age = 2,
+                    tab = tab)
+ggplot
+ggsave(paste("~/gemelas_weight_against_tables.png"), ggplot)
