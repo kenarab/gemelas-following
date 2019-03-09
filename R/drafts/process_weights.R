@@ -68,7 +68,7 @@ ggplot <- ggplot(data = weights.data.norm) +
   geom_smooth(aes(x = date, y = daily.rate, group = name, color = name))+
   ggtitle("Sofia y Margarita- Daily rate")
 ggplot
-ggplotly(ggplot)
+#ggplotly(ggplot)
 ggsave(paste("~/gemelas_daily_rate.png"), ggplot)
 
 
@@ -154,7 +154,9 @@ weights.data.norm.predicted <- makePredictionsWithTables(weights.data,
                                           date.trend = "2019-03-08",
                                           tab = tab) 
 
-tail(weights.data.norm.predicted)
+tail(weights.data.norm.predicted, n = 10)
+
+weights.data.norm.predicted %>% filter(name == "Sofia") %>% select(c(date, weight))
 
 ggplot <- mergeWithTablesPlot(weights.data.norm = weights.data.norm,
                               weights.data.norm.predicted = weights.data.norm.predicted,

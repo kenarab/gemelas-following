@@ -44,6 +44,7 @@ makePredictionsWithTables <- function(weights.data,
                           zero.day = as.Date("2019-03-09"),
                           tab){
   weights.data <- weights.data %>% filter(Obs!="Predicted")
+  weights.data.norm <- weights.data %>% filter(Obs!="Predicted")
   
   days2predict <- seq(max(weights.data$date)+1, date.max, by = 1)
   days2predict.df <- data.frame(date = days2predict)
