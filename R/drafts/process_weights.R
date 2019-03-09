@@ -29,7 +29,7 @@ weights.data$diff.date <- as.numeric(difftime(weights.data$date, weights.data$pr
 #normalized
 
 
-weights.data.norm <- weights.data[,c("date", "Sofia", "diff.date")]
+weights.data.norm <- weights.data[,c("date", "Sofia", "diff.date", "Obs")]
 names(weights.data.norm)[2] <- "weight"
 weights.data.norm$name <- "Sofia"
 weights.data.norm$prev.weight <- c(as.numeric(NA), weights.data.norm$weight[-nrow(weights.data)])
@@ -41,7 +41,7 @@ weights.data.norm$rel.weight <- weights.data.norm$weight / weights.data.norm$pre
 
 
 
-weights.data.norm.margarita <- weights.data[,c("date", "Margarita", "diff.date")]
+weights.data.norm.margarita <- weights.data[,c("date", "Margarita", "diff.date", "Obs")]
 names(weights.data.norm.margarita)[2] <- "weight"
 weights.data.norm.margarita$name <- "Margarita"
 weights.data.norm.margarita$prev.weight <- c(as.numeric(NA), weights.data.norm.margarita$weight[-nrow(weights.data)])
@@ -56,7 +56,6 @@ weights.data.norm$log.weight <- log(weights.data.norm$weight, base =2)
 
 
 weights.data.norm$bi.month.rate <- (1+weights.data.norm$daily.rate) ^ 15 -1
-
 
 
 dcast(weights.data.norm,
@@ -97,13 +96,13 @@ ggsave(paste("~/gemelas_weight.png"), ggplot)
 #projection
 weights.data <- makePrediction(weights.data, 
                                weights.data.norm,
-                               date = "2019-03-03",
-                               date.trend = "2019-02-22") 
+                               date = "2019-03-31",
+                               date.trend = "2019-03-08") 
 
 tail(makePrediction(weights.data, 
                                weights.data.norm,
-                               date = "2019-03-10",
-                               date.trend = "2019-03-04"), 
+                               date = "2019-03-30",
+                               date.trend = "2019-03-08"), 
      n =2)
 
 tail(makePrediction(weights.data, 
@@ -120,7 +119,6 @@ tail(makePrediction(weights.data,
 
 
 
-
 12*8*2
 
 (1+last.daily.rate.sofia)^12 * weights.data[i-1,"Sofia"]
@@ -133,15 +131,26 @@ Sys.Date()+12
 # Different available tables
 #https://github.com/mvogel78/childsds/wiki/Weight
 
+
+
+
 tab <- make_percentile_tab(ref = cdc.ref,
                            item = "weight",
                            perc = c(25,50,75),
                            age = seq(0,2,by=1/24),
                            stack = T)
 
+weights.data.norm.predicted <- makePredictionsWithTables(weights.data, 
+                                          weights.data.norm,
+                                          date.max = as.Date("2019-04-09"),
+                                          date.trend = "2019-03-08",
+                                          tab = tab) 
+
+
 
 ggplot <- mergeWithTablesPlot(weights.data.norm = weights.data.norm,
-                    max.age = 2,
-                    tab = tab)
+                              weights.data.norm.predicted = weights.data.norm.predicted,
+                              max.age = 2,
+                              tab = tab)
 ggplot
 ggsave(paste("~/gemelas_weight_against_tables.png"), ggplot)
