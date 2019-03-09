@@ -94,10 +94,18 @@ ggsave(paste("~/gemelas_weight.png"), ggplot)
 
 
 #projection
+
+date.trend <- "2019-03-08"
+daily.rate.sofia <- as.numeric(weights.data.norm %>% filter(date == date.trend, name == "Sofia") %>% select(daily.rate))
+daily.rate.margarita <- as.numeric(weights.data.norm %>% filter(date == date.trend, name == "Margarita") %>% select(daily.rate))
+
 weights.data <- makePrediction(weights.data, 
                                weights.data.norm,
                                date = "2019-03-31",
-                               date.trend = "2019-03-08") 
+                               daily.rate.sofia = daily.rate.sofia,
+                               daily.rate.margarita = daily.rate.margarita
+                               ) 
+
 
 tail(makePrediction(weights.data, 
                                weights.data.norm,
@@ -146,11 +154,11 @@ weights.data.norm.predicted <- makePredictionsWithTables(weights.data,
                                           date.trend = "2019-03-08",
                                           tab = tab) 
 
-
+tail(weights.data.norm.predicted)
 
 ggplot <- mergeWithTablesPlot(weights.data.norm = weights.data.norm,
                               weights.data.norm.predicted = weights.data.norm.predicted,
-                              max.age = 2,
+                              max.age = 3,
                               tab = tab)
 ggplot
 ggsave(paste("~/gemelas_weight_against_tables.png"), ggplot)
